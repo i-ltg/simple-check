@@ -6,5 +6,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3.5.2
       - uses: actions/setup-node@v2.5.2
+      - name: Retrieve secret
+        env:
+          COOKIE: ${{ secrets.COOKIE }}
+          TOKEN: ${{ secrets.TOKEN }}
       - run: npm install # shell 命令
       - run: node index
