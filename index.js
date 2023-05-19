@@ -10,11 +10,8 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 // require('dotenv').config() // 默认是.env文件
 
 process.env.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.49"
-process.env.postToken = "glados.network"
+const postToken = "glados.network"
 
-// 读取cookie
-console.log("打印出cookie:", process.env.COOKIE)
-request.defaults.headers.common.cookie = process.env.COOKIE;
 
 request.defaults.headers.common["user-agent"] = process.env.UserAgent
 
@@ -24,7 +21,7 @@ const checkIn = () =>{
     method: 'post',
     url: 'https://glados.rocks/api/user/checkin',
     data: {
-      token: process.env.postToken,
+      token: postToken,
     }
   })
 }
@@ -35,7 +32,7 @@ const getStatus = ()=>{
     method: 'get',
     url: 'https://glados.rocks/api/user/status',
     data: {
-      token: process.env.postToken ,
+      token: postToken,
     }
   })
 }
@@ -51,29 +48,27 @@ function dealData(checkInRes, statusRes){
   }
 }
 
-function pushMessage(content){
+function pushMessage(content, token){
   return request({
     method: 'get',
     url: 'http://www.pushplus.plus/send',
     "Content-Type": "application/json",
     data: {
-      token: process.env.TOKEN,
+      token,
       title: 'GlaDos签到结果',
       content: content,
-      template: 'html',
+      template: 'markdown',
     } 
   });
 }
 
 function prettyRes(res){
-  let {useDays, leftDays, message, email} = res;
-  let content = "<table border='1px solid black'><thead><tr><td>k</td><td>v</td></tr></thead><tbody>";
-  let tr1 = "<tr><td>useDays</td><td>" + useDays + "</td></tr>";
-  let tr2 = "<tr><td>leftDays</td><td>" + leftDays + "</td></tr>";
-  let tr3 = "<tr><td>email</td><td>" + email + "</td></tr>";
-  let tr4 = "<tr><td>message</td><td>" + message + "</td></tr>";
-  let tail = "</tbody></table>";
-  content += (tr1 + tr2 + tr3 + tr4 + tail);
+  let {leftDays, message, email} = res;
+  let content = "| 字段 | 值|\n| ---------- | --- |\n"
+  let tr1 = "| 剩余天数 | " +  leftDays + "|\n";
+  let tr2 = "| 邮箱     | " + email + "|\n";
+  let tr3 = "| 签到消息 | " + message + "|\n";
+  content += (tr1 + tr2 + tr3);
   return content;
 }
 
@@ -92,7 +87,9 @@ async function checkOnce(){
     statusRes: statusRes.data.data, 
   }
 }
-async function main(){
+async function checkOnePerson(cookieI, tokenI){
+    // 读取cookie
+  request.defaults.headers.common.cookie = cookieI;
 
   let res = null;
   let checkOnceRes = await checkOnce().catch(err=>{
@@ -110,8 +107,25 @@ async function main(){
   }
  
   let content = prettyRes(res);
-  pushMessage(content);
+  pushMessage(content, tokenI);
   console.log("推送微信成功");
 }
 
+async function main(){
+  //1. 将cookie， token全部构建为列表
+  const checkInNum = process.env.CHECK_IN_NUM;
+  for(let i = 0; i < checkInNum; i++){
+    let cookieI = eval("process.env.COOKIE_" + i);
+    // console.log(cookieI);
+    let tokenI =  eval("process.env.TOKEN_" + i);
+    
+    // 同步等待check in
+    await checkOnePerson(cookieI, tokenI);
+  }
+  
+
+
+  //2. 堆每个列表同步进行request
+
+}
 main()
