@@ -7,8 +7,11 @@ jobs:
   checkin: 
     runs-on: ubuntu-latest
     env:
-      COOKIE: ${{ secrets.COOKIE }}
-      TOKEN: ${{ secrets.TOKEN }}
+      CHECK_IN_NUM: ${{ secrets.CHECK_IN_NUM }}
+      COOKIE_0: ${{ secrets.COOKIE_0 }}
+      TOKEN_0: ${{ secrets.TOKEN_0 }}
+      COOKIE_1: ${{ secrets.COOKIE_1 }}
+      TOKEN_1: ${{ secrets.TOKEN_1 }}
     steps:
       - uses: actions/checkout@v3.5.2
       - uses: actions/setup-node@v2.5.2
