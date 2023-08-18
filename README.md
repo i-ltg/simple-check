@@ -1,0 +1,2 @@
+# simple-check
+test
