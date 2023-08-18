@@ -10,7 +10,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 // require('dotenv').config() // 默认是.env文件
 
 process.env.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.49"
-const postToken = "glados.network"
+const postToken = "glados.one"
 
 
 request.defaults.headers.common["user-agent"] = process.env.UserAgent
